@@ -16,3 +16,6 @@ package-lock.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Ignore large JAR files
+lib/sikulixide-2.0.5.jar
