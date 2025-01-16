@@ -27,6 +27,8 @@ public class LoginPage {
     private static final String REG_IMAGE_DIR = BASE_PATH + "/" + REG_IMAGE_PATH + "/";
     private static final Logger logger = LoggerFactory.getLogger(LoginPage.class);
     private static final int DEFAULT_WAIT_TIMEOUT = 30;
+    private static final int LOGIN_TIMEOUT = 30000; // 30 seconds for login verification
+    private static final int HEADER_WAIT_TIMEOUT = 15; // 15 seconds for header to appear
 
     private final WebDriver driver;
     private final Screen screen;
@@ -34,6 +36,7 @@ public class LoginPage {
     private final Pattern emailInput;
     private final Pattern passwordInput;
     private final Pattern loginButton;
+    private final Pattern teamBalancerHeader;
 
     public LoginPage(WebDriver driver) throws IOException {
         this.driver = driver;
@@ -45,11 +48,13 @@ public class LoginPage {
         this.emailInput = new Pattern(REG_IMAGE_DIR + "emailinputlogin.png").similar(0.4f);
         this.passwordInput = new Pattern(REG_IMAGE_DIR + "password-input.png").similar(0.4f);
         this.loginButton = new Pattern(REG_IMAGE_DIR + "login-button.png").similar(0.4f);
+        this.teamBalancerHeader = new Pattern(IMAGE_DIR + "team-balancer-text.png").similar(0.3f); // Lower threshold for text matching
 
         // Verify images exist
         verifyImageExists(REG_IMAGE_DIR + "emailinputlogin.png", "emailinputlogin.png");
         verifyImageExists(REG_IMAGE_DIR + "password-input.png", "password-input.png");
         verifyImageExists(REG_IMAGE_DIR + "login-button.png", "login-button.png");
+        verifyImageExists(IMAGE_DIR + "team-balancer-text.png", "team-balancer-text.png");
     }
 
     private void verifyImageExists(String imagePath, String imageName) throws IOException {
@@ -138,11 +143,8 @@ public class LoginPage {
         logger.info("Finished entering email");
     }
 
-    public void enterPassword(String password) throws InterruptedException, FindFailed, AWTException {
-        logger.info("Entering password");
-        Thread.sleep(1000);
-        
-        // Find and click password input using image recognition
+    public void enterPassword(String password) throws FindFailed, InterruptedException, AWTException {
+        logger.info("Entering password: {}", password);
         screen.wait(passwordInput, 10);
         screen.click(passwordInput);
         Thread.sleep(2000);
@@ -150,11 +152,16 @@ public class LoginPage {
         // Use Robot to type text
         Robot robot = new Robot();
         for (char c : password.toCharArray()) {
+            logger.info("Typing character: {}", c);
             if (Character.isUpperCase(c)) {
                 robot.keyPress(KeyEvent.VK_SHIFT);
                 robot.keyPress(Character.toLowerCase(c));
                 robot.keyRelease(Character.toLowerCase(c));
                 robot.keyRelease(KeyEvent.VK_SHIFT);
+            } else if (c >= '0' && c <= '9') {
+                // For numbers, directly press the corresponding key
+                robot.keyPress(c);
+                robot.keyRelease(c);
             } else if (c == '!') {
                 robot.keyPress(KeyEvent.VK_SHIFT);
                 robot.keyPress(KeyEvent.VK_1);
@@ -171,6 +178,7 @@ public class LoginPage {
             }
             Thread.sleep(200);
         }
+        logger.info("Finished entering password");
         Thread.sleep(2000);
     }
 
@@ -179,6 +187,19 @@ public class LoginPage {
         screen.wait(loginButton, 10);
         screen.click(loginButton);
         Thread.sleep(2000);
+    }
+
+    public void verifyDashboardHeader() throws FindFailed, InterruptedException {
+        logger.info("Verifying Team Balancer header is visible");
+        try {
+            // Wait longer for header to appear
+            Match headerMatch = screen.wait(teamBalancerHeader, HEADER_WAIT_TIMEOUT);
+            headerMatch.highlight(1);
+            logger.info("Found Team Balancer header at location: ({}, {})", headerMatch.getX(), headerMatch.getY());
+        } catch (FindFailed e) {
+            logger.error("Failed to find Team Balancer header: {}", e.getMessage());
+            throw e;
+        }
     }
 
     public void login(String email, String password) throws FindFailed, InterruptedException, AWTException {
@@ -193,24 +214,50 @@ public class LoginPage {
         enterPassword(password);
         clickLoginButton();
         
-        // Wait for URL to change (indicating successful login)
+        // Add extra wait after clicking login button
+        Thread.sleep(2000);
+        
+        // Check for any error messages in the page source
+        String pageSource = driver.getPageSource();
+        if (pageSource.contains("Invalid email") || pageSource.contains("Invalid password") || 
+            pageSource.contains("Wrong password") || pageSource.contains("User not found")) {
+            logger.error("Login error message found on page");
+            throw new RuntimeException("Login failed - Error message found on page");
+        }
+        
+        // Wait for URL to change and verify Team Balancer header appears
         long startTime = System.currentTimeMillis();
-        long timeout = 10000; // 10 seconds timeout
-        boolean urlChanged = false;
+        long timeout = LOGIN_TIMEOUT; // Increased timeout to 30 seconds
+        boolean loginSuccessful = false;
         
         while (System.currentTimeMillis() - startTime < timeout) {
             String currentUrl = driver.getCurrentUrl();
+            logger.info("Current URL: {}", currentUrl);
+            
             if (!currentUrl.equals(beforeUrl) && !currentUrl.contains("/signin")) {
-                urlChanged = true;
-                logger.info("Successfully logged in. New URL: {}", currentUrl);
-                break;
+                logger.info("URL changed, waiting for Team Balancer header...");
+                try {
+                    // Add extra wait before checking for header
+                    Thread.sleep(2000);
+                    // Verify the Team Balancer header is visible
+                    verifyDashboardHeader();
+                    loginSuccessful = true;
+                    logger.info("Successfully logged in and verified Team Balancer header. New URL: {}", currentUrl);
+                    break;
+                } catch (FindFailed e) {
+                    logger.warn("URL changed but Team Balancer header not found yet: {}", e.getMessage());
+                }
+            } else {
+                logger.info("Still on signin page or URL hasn't changed yet");
             }
-            Thread.sleep(500);
+            Thread.sleep(1000); // Increased sleep between checks
         }
         
-        if (!urlChanged) {
-            logger.error("Login failed - URL did not change from signin page");
-            throw new RuntimeException("Login failed - remained on signin page");
+        if (!loginSuccessful) {
+            // Log the final page source to see what's on the page
+            logger.error("Final page source after login attempt: {}", driver.getPageSource());
+            logger.error("Login failed - Could not verify successful login");
+            throw new RuntimeException("Login failed - Could not verify successful login");
         }
     }
 }

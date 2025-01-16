@@ -6,10 +6,13 @@ from sikuli import *
 # Set up paths
 project_root = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(getBundlePath())), ".."))
 screenshots_dir = os.path.join(project_root, "src", "test", "resources", "images", "login")
+assertions_dir = os.path.join(project_root, "src", "test", "resources", "images", "assertions")
 
-# Create screenshots directory if it doesn't exist
+# Create directories if they don't exist
 if not os.path.exists(screenshots_dir):
     os.makedirs(screenshots_dir)
+if not os.path.exists(assertions_dir):
+    os.makedirs(assertions_dir)
 
 # Wait for the page to load
 wait(3)
@@ -40,5 +43,14 @@ try:
     login_region.save(os.path.join(screenshots_dir, "login-button.png"))
 except:
     print("Could not find login button")
+
+# Capture Team Balancer header
+try:
+    header = find("Team Balancer")
+    header_region = Region(header.x - 10, header.y - 5, header.w + 20, header.h + 10)
+    header_region.highlight()
+    header_region.save(os.path.join(assertions_dir, "team-balancer-text.png"))
+except:
+    print("Could not find Team Balancer header")
 
 print("Login elements captured successfully")
