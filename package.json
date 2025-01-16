@@ -12,7 +12,8 @@
     "test:single": "playwright test -g",
     "install:browsers": "playwright install",
     "test:specs": "playwright test tests/specs/*.spec.js --headed",
-    "test:specs:headless": "playwright test tests/specs/*.spec.js"
+    "test:specs:headless": "playwright test tests/specs/*.spec.js",
+    "setup:sikulix": "./scripts/setup-sikulix.sh"
   },
   "keywords": [
     "flutter",
