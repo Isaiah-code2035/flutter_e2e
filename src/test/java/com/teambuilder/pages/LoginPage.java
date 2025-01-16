@@ -45,13 +45,13 @@ public class LoginPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(DEFAULT_WAIT_TIMEOUT));
 
         // Initialize patterns with images and similarity thresholds
-        this.emailInput = new Pattern(REG_IMAGE_DIR + "emailinputlogin.png").similar(0.4f);
+        this.emailInput = new Pattern(IMAGE_DIR + "emailinputlogin.png").similar(0.4f);
         this.passwordInput = new Pattern(REG_IMAGE_DIR + "password-input.png").similar(0.4f);
         this.loginButton = new Pattern(REG_IMAGE_DIR + "login-button.png").similar(0.4f);
         this.teamBalancerHeader = new Pattern(IMAGE_DIR + "team-balancer-text.png").similar(0.3f); // Lower threshold for text matching
 
         // Verify images exist
-        verifyImageExists(REG_IMAGE_DIR + "emailinputlogin.png", "emailinputlogin.png");
+        verifyImageExists(IMAGE_DIR + "emailinputlogin.png", "emailinputlogin.png");
         verifyImageExists(REG_IMAGE_DIR + "password-input.png", "password-input.png");
         verifyImageExists(REG_IMAGE_DIR + "login-button.png", "login-button.png");
         verifyImageExists(IMAGE_DIR + "team-balancer-text.png", "team-balancer-text.png");
