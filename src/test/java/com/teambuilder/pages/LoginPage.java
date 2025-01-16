@@ -148,39 +148,55 @@ public class LoginPage {
         screen.wait(passwordInput, 10);
         screen.click(passwordInput);
         Thread.sleep(2000);
-        
-        // Use Robot to type text
+    
         Robot robot = new Robot();
+    
         for (char c : password.toCharArray()) {
             logger.info("Typing character: {}", c);
+    
             if (Character.isUpperCase(c)) {
+                // Handle uppercase letters
                 robot.keyPress(KeyEvent.VK_SHIFT);
-                robot.keyPress(Character.toLowerCase(c));
-                robot.keyRelease(Character.toLowerCase(c));
+                robot.keyPress(Character.toUpperCase(c));
+                robot.keyRelease(Character.toUpperCase(c));
                 robot.keyRelease(KeyEvent.VK_SHIFT);
-            } else if (c >= '0' && c <= '9') {
-                // For numbers, directly press the corresponding key
-                robot.keyPress(c);
-                robot.keyRelease(c);
-            } else if (c == '!') {
-                robot.keyPress(KeyEvent.VK_SHIFT);
-                robot.keyPress(KeyEvent.VK_1);
-                robot.keyRelease(KeyEvent.VK_1);
-                robot.keyRelease(KeyEvent.VK_SHIFT);
-            } else if (c == '@') {
-                robot.keyPress(KeyEvent.VK_SHIFT);
-                robot.keyPress(KeyEvent.VK_2);
-                robot.keyRelease(KeyEvent.VK_2);
-                robot.keyRelease(KeyEvent.VK_SHIFT);
+            } else if (Character.isLowerCase(c)) {
+                // Handle lowercase letters
+                robot.keyPress(Character.toUpperCase(c));
+                robot.keyRelease(Character.toUpperCase(c));
+            } else if (Character.isDigit(c)) {
+                // Handle digits
+                int keyCode = KeyEvent.VK_0 + (c - '0'); // Map '0'-'9' to VK_0-VK_9
+                robot.keyPress(keyCode);
+                robot.keyRelease(keyCode);
             } else {
-                robot.keyPress(Character.toLowerCase(c));
-                robot.keyRelease(Character.toLowerCase(c));
+                // Handle special characters
+                switch (c) {
+                    case '!':
+                        robot.keyPress(KeyEvent.VK_SHIFT);
+                        robot.keyPress(KeyEvent.VK_1);
+                        robot.keyRelease(KeyEvent.VK_1);
+                        robot.keyRelease(KeyEvent.VK_SHIFT);
+                        break;
+                    case '@':
+                        robot.keyPress(KeyEvent.VK_SHIFT);
+                        robot.keyPress(KeyEvent.VK_2);
+                        robot.keyRelease(KeyEvent.VK_2);
+                        robot.keyRelease(KeyEvent.VK_SHIFT);
+                        break;
+                    // Add more cases here for other symbols as needed
+                    default:
+                        logger.error("Unsupported character: {}", c);
+                        break;
+                }
             }
-            Thread.sleep(200);
+            Thread.sleep(200); // Optional: Add a small delay between keystrokes
         }
+    
         logger.info("Finished entering password");
         Thread.sleep(2000);
     }
+    
 
     public void clickLoginButton() throws FindFailed, InterruptedException {
         logger.info("Clicking login button");
