@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="1" passed="1" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2025-01-18T16:57:37 WET" name="Surefire suite" finished-at="2025-01-18T17:01:04 WET" duration-ms="206286">
+    <groups>
+    </groups>
+    <test started-at="2025-01-18T16:57:37 WET" name="Surefire test" finished-at="2025-01-18T17:01:04 WET" duration-ms="206286">
+      <class name="com.teambuilder.tests.TeamCreationTest">
+        <test-method is-config="true" signature="setUp()[pri:0, instance:com.teambuilder.tests.TeamCreationTest@7ea37dbf]" started-at="2025-01-18T16:57:37 WET" name="setUp" finished-at="2025-01-18T16:57:53 WET" duration-ms="15366" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUp -->
+        <test-method signature="testTeamCreationWithoutNewPlayer()[pri:0, instance:com.teambuilder.tests.TeamCreationTest@7ea37dbf]" started-at="2025-01-18T16:57:53 WET" name="testTeamCreationWithoutNewPlayer" description="Test team creation without adding new player" finished-at="2025-01-18T17:01:03 WET" duration-ms="189966" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- testTeamCreationWithoutNewPlayer -->
+        <test-method is-config="true" signature="tearDown()[pri:0, instance:com.teambuilder.tests.TeamCreationTest@7ea37dbf]" started-at="2025-01-18T17:01:03 WET" name="tearDown" finished-at="2025-01-18T17:01:04 WET" duration-ms="702" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDown -->
+      </class> <!-- com.teambuilder.tests.TeamCreationTest -->
+    </test> <!-- Surefire test -->
+  </suite> <!-- Surefire suite -->
+</testng-results>
