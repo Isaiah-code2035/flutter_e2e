@@ -67,20 +67,40 @@ public class LoginPage {
 
     public void enterEmail(String email) throws InterruptedException, FindFailed, AWTException {
         logger.info("Entering email: {}", email);
-        Thread.sleep(2000); // Increased initial wait
+        Thread.sleep(5000); // Initial wait for page load
         
-        // Find and click email input using image recognition with retries
-        logger.info("Looking for email input field...");
-        boolean clicked = false;
+        // First try using WebDriver
+        try {
+            logger.info("Attempting to find email input using WebDriver");
+            WebElement emailField = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("input[type='email'], input[placeholder*='email'], input[name*='email']")
+            ));
+            
+            logger.info("Found email input with WebDriver, clicking and entering text");
+            emailField.click();
+            Thread.sleep(1000);
+            emailField.clear();
+            Thread.sleep(500);
+            emailField.sendKeys(email);
+            logger.info("Successfully entered email using WebDriver");
+            return;
+        } catch (Exception e) {
+            logger.warn("WebDriver approach failed, falling back to Sikuli: {}", e.getMessage());
+        }
+        
+        // Fallback to Sikuli
+        logger.info("Looking for email input field using Sikuli...");
         Match emailMatch = null;
+        boolean clicked = false;
         
+        // Try different similarity thresholds
         for (float similarity : new float[]{0.4f, 0.5f, 0.6f, 0.7f}) {
             try {
                 Pattern pattern = emailInput.similar(similarity);
                 logger.info("Trying similarity threshold: {}", similarity);
                 emailMatch = screen.wait(pattern, 5);
                 logger.info("Found email input at location: ({}, {})", emailMatch.getX(), emailMatch.getY());
-                emailMatch.highlight(1); // Highlight for visual feedback
+                emailMatch.highlight(1);
                 
                 // Click multiple times to ensure focus
                 emailMatch.click();
