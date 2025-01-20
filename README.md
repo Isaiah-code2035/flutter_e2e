@@ -1,219 +1,224 @@
-# Flutter E2E Tests with Playwright
+# Flutter TeamBuilder E2E Test Automation
 
-This repository contains end-to-end tests for a Flutter web application using Playwright. The tests are structured using the Page Object Model (POM) pattern for better maintainability and reusability.
+This repository contains end-to-end tests for the Flutter TeamBuilder application using Sikuli for image-based automation. The framework is designed to work with Flutter applications where traditional DOM-based selectors are not accessible.
 
 ## Prerequisites
 
-- Node.js (v14 or higher)
-- npm (Node Package Manager)
-- A modern web browser (Chrome, Firefox, or Safari)
-- Flutter web application running at https://team-building-balancer.web.app/
+### Required Software
+- Java Development Kit (JDK) 11 or higher
+- Maven 3.6 or higher
+- Chrome browser
+- Sikuli library
+- Flutter SDK (for running the application)
+
+### Installation Steps
+
+1. **Install Java JDK:**
+   ```bash
+   # Check Java version
+   java -version
+   
+   # Install Java if needed (using Homebrew on macOS)
+   brew install openjdk@11
+   ```
+
+2. **Install Maven:**
+   ```bash
+   # Check Maven version
+   mvn -version
+   
+   # Install Maven if needed
+   brew install maven
+   ```
+
+3. **Install Chrome:**
+   ```bash
+   # Install Chrome browser if needed
+   brew install --cask google-chrome
+   ```
+
+4. **Clone Repository:**
+   ```bash
+   git clone https://github.com/Isaiah-code2035/flutter_e2e.git
+   cd flutter_e2e
+   ```
+
+5. **Install Dependencies:**
+   ```bash
+   mvn clean install
+   ```
 
 ## Project Structure
 
 ```
-flutter-e2e-tests/
-├── tests/
-│   ├── helpers/
-│   │   ├── flutter.helper.js
-│   │   └── coordinates.config.js
-│   ├── pages/
-│   │   ├── base.page.js
-│   │   ├── onboarding.page.js
-│   │   ├── auth.page.js
-│   │   ├── sport-selection.page.js
-│   │   └── team-creation.page.js
-│   └── specs/
-│       ├── onboarding.spec.js
-│       ├── select-sport.spec.js
-│       ├── create-team.spec.js
-│       ├── create-team-no-skills.spec.js
-│       └── create-team-pom.spec.js
-├── package.json
-├── playwright.config.js
+flutter_e2e/
+├── src/
+│   └── test/
+│       ├── java/com/teambuilder/
+│       │   ├── pages/
+│       │   │   ├── BasePage.java
+│       │   │   ├── LoginPage.java
+│       │   │   ├── OnboardingPage.java
+│       │   │   ├── RegistrationPage.java
+│       │   │   ├── SportSelectionPage.java
+│       │   │   └── TeamCreationPage.java
+│       │   └── tests/
+│       └── resources/
+│           └── images/
+│               ├── login/
+│               ├── onboarding/
+│               ├── registration/
+│               ├── sports/
+│               └── team/
+├── scripts/
+│   └── run_tests.sh
+├── docs/
+│   ├── BUG_REPORT.md
+│   └── TEST_EXECUTION.md
 └── README.md
-```
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/Isaiah-code2035/flutter_e2e.git
-cd flutter_e2e
-```
-
-2. Install dependencies:
-```bash
-# Clean install node_modules (recommended)
-rm -rf node_modules package-lock.json
-npm cache clean --force
-npm install
-
-# Install Playwright browsers
-npx playwright install
-# OR
-npm run install:browsers
-```
-
-### Troubleshooting Installation
-
-If you encounter any issues:
-
-1. **Missing node_modules**
-```bash
-# Remove existing node_modules and lock file
-rm -rf node_modules package-lock.json
-
-# Clear npm cache
-npm cache clean --force
-
-# Reinstall dependencies
-npm install
-```
-
-2. **Playwright Browser Installation Issues**
-```bash
-# Manual browser installation
-npx playwright install chromium
-npx playwright install firefox
-npx playwright install webkit
-```
-
-3. **Permission Issues**
-```bash
-# If you encounter permission errors
-sudo npm install -g npm@latest
-npm install
-```
-
-4. **Verify Installation**
-```bash
-# Check if Playwright is installed correctly
-npx playwright --version
-
-# Test browser installation
-npx playwright test --browser=all about:blank
 ```
 
 ## Running Tests
 
-The project includes several npm scripts for running tests:
+### Quick Start
+1. **Run Tests in Headless Mode:**
+   ```bash
+   ./scripts/run_tests.sh --headless
+   ```
 
-1. Run all tests in headed mode (with browser visible):
-```bash
-npm run test:headed
-```
+2. **Run Tests in GUI Mode:**
+   ```bash
+   ./scripts/run_tests.sh --gui
+   ```
 
-2. Run all tests in headless mode:
-```bash
-npm run test
-```
+3. **View Help:**
+   ```bash
+   ./scripts/run_tests.sh --help
+   ```
 
-3. Run tests with UI mode (Playwright's test runner UI):
-```bash
-npm run test:ui
-```
+### Using Maven Directly
 
-4. View test report:
-```bash
-npm run report
-```
+1. **Run All Tests:**
+   ```bash
+   mvn clean test
+   ```
 
-5. Run only spec files:
-```bash
-# Run specs in headed mode
-npm run test:specs
+2. **Run Tests with Specific Profile:**
+   ```bash
+   # Run in headless mode
+   mvn clean test -Dheadless=true
 
-# Run specs in headless mode
-npm run test:specs:headless
-```
+   # Run in GUI mode
+   mvn clean test -Dheadless=false
+   ```
 
-### Running Specific Test Files
+3. **Run Specific Test Class:**
+   ```bash
+   # Run single test class
+   mvn clean test -Dtest=OnboardingTest
 
-To run a specific test file:
-```bash
-npm run test:headed tests/specs/onboarding.spec.js
-```
+   # Run multiple test classes
+   mvn clean test -Dtest=OnboardingTest,LoginTest
+   ```
 
-To run multiple specific test files:
-```bash
-npm run test:headed tests/specs/onboarding.spec.js tests/specs/select-sport.spec.js
-```
+4. **Run with Different Configurations:**
+   ```bash
+   # Run with retry on failure
+   mvn clean test -Dsurefire.rerunFailingTestsCount=2
 
-## Test Scenarios
+   # Run with custom report directory
+   mvn clean test -DreportDirectory="custom-reports"
 
-The test suite covers the following scenarios:
+   # Run with all options combined
+   mvn clean test -Dheadless=true -Dtest=OnboardingTest -Dsurefire.rerunFailingTestsCount=2 -DreportDirectory="custom-reports"
+   ```
 
-1. **Onboarding Flow**
-   - Welcome page verification
-   - Get Started navigation
+5. **Skip Tests:**
+   ```bash
+   mvn clean install -DskipTests
+   ```
 
-2. **Authentication**
-   - Registration process
-   - Form validation
+### Test Reports
+- Reports are generated in `test-output/[timestamp]/`
+- Each run creates a new directory with:
+  - HTML test report
+  - Screenshots of failures
+  - Detailed logs
 
-3. **Sport Selection**
-   - Sport selection process
-   - Navigation validation
+## Test Coverage
 
-4. **Team Creation**
-   - Creating team with and without skills
-   - Adding players to team
-   - Form validation
-   - Success verification
+### 1. Onboarding Flow
+- Welcome screen verification
+- Get Started navigation
+- Multi-step onboarding process
+- Skip functionality
 
-## Page Objects
+### 2. Authentication
+- Login with email/password
+- Form validation
+- Error handling
 
-The tests use Page Object Model pattern with the following page objects:
+### 3. Sport Selection
+- Multiple sport selection
+- Selection validation
+- Navigation flow
 
-1. **BasePage**: Common functionality for all pages
-2. **OnboardingPage**: Welcome and Get Started functionality
-3. **AuthPage**: Registration and authentication
-4. **SportSelectionPage**: Sport selection process
-5. **TeamCreationPage**: Team and player management
+### 4. Team Creation
+- Team size configuration
+- Player number validation
+- Success/error scenarios
 
-## Configuration
+## Framework Features
 
-The test configuration is in `playwright.config.js`:
-- Base URL: https://team-building-balancer.web.app/
-- Viewport: 1440x900
-- Screenshots: Only on failure
-- Trace: On first retry
-- Retries: 1
-- Workers: 1
+### 1. Image-Based Recognition
+- Uses Sikuli for reliable UI element detection
+- Adaptive similarity thresholds (0.3f - 0.5f)
+- Automatic retry mechanism
 
-## Debugging
+### 2. Robust Error Handling
+- Detailed logging
+- Screenshot capture on failure
+- Multiple similarity threshold attempts
 
-For debugging tests:
+### 3. Visual Debugging
+- Element highlighting
+- Match score logging
+- Failure screenshots
 
-1. Use UI mode:
-```bash
-npm run test:ui
-```
+## Known Issues and Solutions
 
-2. Run specific test with headed mode:
-```bash
-npm run test:headed tests/specs/create-team.spec.js
-```
+For a detailed list of known issues and their solutions, see [BUG_REPORT.md](docs/BUG_REPORT.md).
 
-3. Check test reports:
-```bash
-npm run report
-```
+### Common Issues:
+1. **Pattern Matching Failures**
+   - Update reference images
+   - Adjust similarity thresholds
+   - Check screen resolution
 
-## Common Issues and Solutions
+2. **Test Environment Issues**
+   - Verify Flutter app is running
+   - Check Chrome installation
+   - Confirm Java/Maven setup
 
-1. **Test Timeouts**
-   - Increase timeout in `playwright.config.js`
-   - Check network connectivity
-   - Verify application is running
+## Contributing
 
-2. **Element Not Found**
-   - Verify coordinates in page objects
-   - Check if application layout changed
-   - Ensure proper wait times
+1. Update reference images when UI changes
+2. Maintain consistent screen resolution
+3. Follow the established page object pattern
+4. Add detailed logging for new features
 
-3. **Authentication Issues**
-   - Clear browser cache/cookies
-   - Verify test user credentials
-   - Check application authentication state
+## Additional Documentation
+
+- [Test Execution Guide](docs/TEST_EXECUTION.md)
+- [Bug Report](docs/BUG_REPORT.md)
+
+## Support
+
+For issues or questions:
+1. Check test reports in `test-output/`
+2. Review logs in the test report directory
+3. Consult the documentation in `docs/`
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

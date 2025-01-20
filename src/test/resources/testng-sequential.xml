@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Sequential Test Suite">
+    <test name="Onboarding Flow Tests">
+        <classes>
+            <class name="com.teambuilder.tests.OnboardingTest"/>
+            <class name="com.teambuilder.tests.TeamCreationTest"/>
+            <class name="com.teambuilder.tests.TeamCreationAdvancedTest"/>
+            <class name="com.teambuilder.tests.TeamCreationWithoutSkillsTest"/>
+        </classes>
+    </test>
+</suite>

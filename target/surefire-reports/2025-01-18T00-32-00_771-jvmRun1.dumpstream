@@ -1,4 +1,0 @@
-# Created at 2025-01-18T00:32:02.221
-
-com.teambuilder.tests.TeamCreationTest.testTeamCreationWithoutNewPlayer() depends on nonexistent method com.teambuilder.tests.SportSelectionTest.testSportSelection
-

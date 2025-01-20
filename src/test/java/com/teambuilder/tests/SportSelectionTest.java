@@ -15,8 +15,9 @@ import java.awt.event.KeyEvent;
 import java.awt.AWTException;
 import java.util.HashMap;
 import java.util.Map;
+import org.testng.Assert;
 
-public class SportSelectionTest {
+public class SportSelectionTest extends BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(SportSelectionTest.class);
     private WebDriver driver;
     private LoginPage loginPage;
@@ -24,6 +25,7 @@ public class SportSelectionTest {
 
     @BeforeMethod
     public void setUp() throws Exception {
+        super.setUp();
         // Setup ChromeDriver using WebDriverManager
         WebDriverManager.chromedriver().setup();
         logger.info("Setting up ChromeDriver");
@@ -65,23 +67,55 @@ public class SportSelectionTest {
         }
     }
 
-    @Test(description = "Verify user can select basketball after login")
-    public void testBasketballSelection() throws FindFailed, InterruptedException, AWTException {
-        logger.info("Starting basketball selection test");
-        
-        // Add extra delay to ensure everything is loaded
-        Thread.sleep(10000);
-        
-        // Login
-        loginPage.login("oluwabamiseolanipekun@gmail.com", "Bamise123");
-        logger.info("Login completed");
-        
-        // Wait for page to load after login
-        Thread.sleep(5000);
-        
-        // Select basketball
-        sportSelectionPage.selectBasketball();
-        logger.info("Basketball selected");
+    @Test(description = "Test basketball sport selection")
+    public void testBasketballSelection() throws Exception {
+        logger.info("Starting test: Basketball selection");
+        try {
+            logger.info("Performing login with test credentials");
+            performLogin();
+            logger.info("Selecting basketball sport");
+            sportSelectionPage.selectSport("basketball");
+            logger.info("Verifying basketball selection");
+            sportSelectionPage.verifyBasketballSelected();
+            Assert.assertTrue(sportSelectionPage.isSportSelectionPageDisplayed(), "Sport selection page should be displayed");
+        } catch (Exception e) {
+            logger.error("Failed to select basketball", e);
+            Assert.fail("Failed to select basketball: " + e.getMessage());
+        }
+    }
+
+    @Test(description = "Test football sport selection")
+    public void testFootballSelection() throws Exception {
+        logger.info("Starting test: Football selection");
+        try {
+            logger.info("Performing login with test credentials");
+            performLogin();
+            logger.info("Selecting football sport");
+            sportSelectionPage.selectSport("football");
+            logger.info("Verifying football selection");
+            sportSelectionPage.verifyFootballSelected();
+            Assert.assertTrue(sportSelectionPage.isSportSelectionPageDisplayed(), "Sport selection page should be displayed");
+        } catch (Exception e) {
+            logger.error("Failed to select football", e);
+            Assert.fail("Failed to select football: " + e.getMessage());
+        }
+    }
+
+    @Test(description = "Test volleyball sport selection")
+    public void testVolleyballSelection() throws Exception {
+        logger.info("Starting test: Volleyball selection");
+        try {
+            logger.info("Performing login with test credentials");
+            performLogin();
+            logger.info("Selecting volleyball sport");
+            sportSelectionPage.selectSport("volleyball");
+            logger.info("Verifying volleyball selection");
+            sportSelectionPage.verifyVolleyballSelected();
+            Assert.assertTrue(sportSelectionPage.isSportSelectionPageDisplayed(), "Sport selection page should be displayed");
+        } catch (Exception e) {
+            logger.error("Failed to select volleyball", e);
+            Assert.fail("Failed to select volleyball: " + e.getMessage());
+        }
     }
 
     @AfterMethod

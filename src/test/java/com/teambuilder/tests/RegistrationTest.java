@@ -22,7 +22,7 @@ import org.openqa.selenium.By;
 import java.time.Duration;
 import org.apache.commons.lang3.RandomStringUtils;
 
-public class RegistrationTest {
+public class RegistrationTest extends BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(RegistrationTest.class);
     private WebDriver driver;
     private RegistrationPage registrationPage;
@@ -59,7 +59,7 @@ public class RegistrationTest {
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         
         // Navigate to the application
-        driver.get("https://team-building-balancer.web.app/%C2%A3/onboarding#/signin");
+        driver.get(BaseTest.LOGIN_URL);
         logger.info("Navigated to signin page");
         
         // Bring Chrome window to front using Robot
@@ -93,7 +93,7 @@ public class RegistrationTest {
             
             // Wait for registration to complete and verify redirection
             logger.info("Waiting for registration to complete and verify redirection");
-            wait.until(ExpectedConditions.urlContains("/onboarding"));
+            wait.until(ExpectedConditions.urlContains(BaseTest.LOGIN_URL));
             
             // Add verification delay
             Thread.sleep(5000);

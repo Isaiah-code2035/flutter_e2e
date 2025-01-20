@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Parallel Test Suite" parallel="classes" thread-count="3">
+    <test name="Registration and Login Tests">
+        <classes>
+            <class name="com.teambuilder.tests.RegistrationTest"/>
+            <class name="com.teambuilder.tests.LoginTest"/>
+        </classes>
+    </test>
+    <test name="Sport Selection Tests">
+        <classes>
+            <class name="com.teambuilder.tests.SportSelectionTest"/>
+        </classes>
+    </test>
+</suite>

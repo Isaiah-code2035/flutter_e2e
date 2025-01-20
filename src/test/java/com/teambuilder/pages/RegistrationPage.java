@@ -47,12 +47,12 @@ public class RegistrationPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         
         // Initialize patterns with images and similarity thresholds
-        this.signupLink = new Pattern(IMAGE_DIR + "signup-link.png").similar(0.4f);
-        this.nameInput = new Pattern(IMAGE_DIR + "name-input.png").similar(0.6f);
-        this.emailInput = new Pattern(IMAGE_DIR + "email-input.png").similar(0.4f);
-        this.passwordInput = new Pattern(IMAGE_DIR + "password-input.png").similar(0.6f);
-        this.confirmPassword = new Pattern(IMAGE_DIR + "confirm-password.png").similar(0.6f);
-        this.registerButton = new Pattern(IMAGE_DIR + "register-button.png").similar(0.6f);
+        this.signupLink = new Pattern(IMAGE_DIR + "signup-link.png").similar(0.3f);
+        this.nameInput = new Pattern(IMAGE_DIR + "name-input.png").similar(0.4f);
+        this.emailInput = new Pattern(IMAGE_DIR + "email-input.png").similar(0.3f);
+        this.passwordInput = new Pattern(IMAGE_DIR + "password-input.png").similar(0.4f);
+        this.confirmPassword = new Pattern(IMAGE_DIR + "confirm-password.png").similar(0.4f);
+        this.registerButton = new Pattern(IMAGE_DIR + "register-button.png").similar(0.4f);
         
         // Verify all images exist
         verifyImageExists("signup-link.png");

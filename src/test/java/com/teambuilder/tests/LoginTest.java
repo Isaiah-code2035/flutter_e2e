@@ -18,7 +18,7 @@ import java.util.Map;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
-public class LoginTest {
+public class LoginTest extends BaseTest {
     private WebDriver driver;
     private LoginPage loginPage;
     private RegistrationPage registrationPage;
@@ -62,7 +62,7 @@ public class LoginTest {
     public void testLogin() {
         try {
             // Navigate to signin page
-            driver.get("https://team-building-balancer.web.app/#/signin");
+            driver.get(BaseTest.LOGIN_URL);
             logger.info("Navigated to signin page");
             
             // Bring Chrome window to front using Robot

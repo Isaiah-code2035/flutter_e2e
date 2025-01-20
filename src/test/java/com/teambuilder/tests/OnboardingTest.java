@@ -16,7 +16,7 @@ import java.util.Map;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
 
-public class OnboardingTest {
+public class OnboardingTest extends BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(OnboardingTest.class);
     private WebDriver driver;
     private OnboardingPage onboardingPage;
@@ -56,7 +56,7 @@ public class OnboardingTest {
         driver.manage().window().setSize(new Dimension(1440, 900));
         
         // Navigate to the application
-        driver.get("https://team-building-balancer.web.app/#/onboarding");
+        driver.get(BaseTest.ONBOARDING_URL);
         logger.info("Navigated to onboarding page");
         
         // Bring Chrome window to front using Robot
@@ -71,32 +71,63 @@ public class OnboardingTest {
         onboardingPage = new OnboardingPage(driver);
         
         // Wait for page to load
-        onboardingPage.waitForPageToLoad();
+        waitForPageToLoad();
         logger.info("Page loaded successfully");
         
         // Add extra delay to ensure everything is visible
         Thread.sleep(3000);
     }
 
-    @Test
-    public void testOnboardingFlow() throws Exception {
-        // Verify welcome text is displayed
-        logger.info("Checking for welcome text");
-        Assert.assertTrue(onboardingPage.isWelcomeTextDisplayed(), 
-            "Welcome text should be displayed");
+    @Test(description = "Test complete onboarding flow")
+    public void testCompleteOnboardingFlow() throws Exception {
+        logger.info("Starting test: Complete onboarding flow");
+        performLogin();
+        navigateToOnboardingPage();
         
-        // Add delay before clicking
-        Thread.sleep(3000);
+        // Verify welcome screen is displayed
+        Assert.assertTrue(onboardingPage.isWelcomeScreenDisplayed(), 
+            "Welcome screen should be displayed");
+        
+        // Complete onboarding
+        onboardingPage.completeOnboarding();
+    }
 
-        // Click Get Started button until navigation occurs
-        logger.info("Clicking Get Started button until navigation");
-        onboardingPage.clickGetStartedUntilNavigated();
-        logger.info("Successfully navigated to next page");
+    @Test(description = "Test skip onboarding flow")
+    public void testSkipOnboardingFlow() throws Exception {
+        logger.info("Starting test: Skip onboarding flow");
+        performLogin();
+        navigateToOnboardingPage();
         
-        // Wait for 1 minute (60000 milliseconds)
-        logger.info("Waiting for 1 minute...");
-        Thread.sleep(60000);
-        logger.info("1-minute wait completed");
+        // Verify welcome screen is displayed
+        Assert.assertTrue(onboardingPage.isWelcomeScreenDisplayed(), 
+            "Welcome screen should be displayed");
+        
+        // Skip onboarding
+        onboardingPage.skipOnboarding();
+    }
+
+    @Test(description = "Test get started navigation")
+    public void testGetStartedNavigation() throws Exception {
+        logger.info("Starting test: Get started navigation");
+        performLogin();
+        navigateToOnboardingPage();
+        
+        // Verify welcome screen is displayed
+        Assert.assertTrue(onboardingPage.isWelcomeScreenDisplayed(), 
+            "Welcome screen should be displayed");
+        
+        // Click get started and verify navigation
+        onboardingPage.clickGetStartedAndWaitForNavigation();
+    }
+
+    private void waitForPageToLoad() {
+        logger.info("Waiting for page to load");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            logger.error("Wait interrupted", e);
+            Thread.currentThread().interrupt();
+        }
     }
 
     @AfterMethod

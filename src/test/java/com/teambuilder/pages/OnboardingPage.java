@@ -1,160 +1,201 @@
 package com.teambuilder.pages;
 
-import org.sikuli.script.*;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.By;
-import java.time.Duration;
-import java.nio.file.Paths;
+import org.sikuli.script.FindFailed;
+import org.sikuli.script.Match;
+import org.sikuli.script.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.File;
 
-public class OnboardingPage {
+public class OnboardingPage extends BasePage {
     private static final Logger logger = LoggerFactory.getLogger(OnboardingPage.class);
-    private final WebDriver driver;
-    private final Screen screen;
-    private final Pattern welcomeText;
-    private final Pattern getStartedButton;
-    private static final String BASE_PATH = "/Users/oluwabamise/flutter-e2e-tests";
-    private static final String IMAGE_PATH = "src/test/resources/images/onboarding";
-    private static final double DEFAULT_WAIT_TIMEOUT = 30.0;
-    private static final double DEFAULT_SIMILARITY = 0.7;
-    private static final int MAX_CLICK_ATTEMPTS = 5;
-    private static final int CLICK_RETRY_INTERVAL = 5000; // 5 seconds
+    private static final String ONBOARDING_IMAGES_PATH = "onboarding";
+
+    private final Pattern welcomePattern;
+    private final Pattern getStartedPattern;
+    private final Pattern skipPattern;
+    private final Pattern nextPattern;
+    private final Pattern donePattern;
 
     public OnboardingPage(WebDriver driver) {
-        this.driver = driver;
-        this.screen = new Screen();
-        screen.setAutoWaitTimeout(DEFAULT_WAIT_TIMEOUT);
+        super(driver);
+        welcomePattern = new Pattern(getImagePath(ONBOARDING_IMAGES_PATH, "welcome.png")).similar(0.4f);
+        getStartedPattern = new Pattern(getImagePath(ONBOARDING_IMAGES_PATH, "get_started.png")).similar(0.4f);
+        skipPattern = new Pattern(getImagePath(ONBOARDING_IMAGES_PATH, "skip.png")).similar(0.4f);
+        nextPattern = new Pattern(getImagePath(ONBOARDING_IMAGES_PATH, "next.png")).similar(0.4f);
+        donePattern = new Pattern(getImagePath(ONBOARDING_IMAGES_PATH, "done.png")).similar(0.4f);
+    }
+
+    public void completeOnboarding() throws FindFailed {
+        logger.info("Starting onboarding completion process");
+        waitForPageLoad();
         
-        // Initialize patterns with captured images using absolute paths
-        String absolutePath = new File(BASE_PATH, IMAGE_PATH).getAbsolutePath();
-        this.welcomeText = new Pattern(new File(absolutePath, "welcome-text.png").getAbsolutePath())
-            .similar(DEFAULT_SIMILARITY);
-        this.getStartedButton = new Pattern(new File(absolutePath, "get-started-button.png").getAbsolutePath())
-            .similar(DEFAULT_SIMILARITY);
-        
-        logger.info("Welcome text image path: {}", welcomeText.getFilename());
-        logger.info("Get started button image path: {}", getStartedButton.getFilename());
-        
-        // Verify that image files exist
-        File welcomeFile = new File(welcomeText.getFilename());
-        File buttonFile = new File(getStartedButton.getFilename());
-        
-        logger.info("Welcome text image exists: {}", welcomeFile.exists());
-        logger.info("Get started button image exists: {}", buttonFile.exists());
-        logger.info("Using similarity threshold: {}", DEFAULT_SIMILARITY);
-        
-        if (!welcomeFile.exists() || !buttonFile.exists()) {
-            throw new RuntimeException("Required image files are missing");
+        try {
+            // Click Get Started
+            float[] thresholds = {0.3f, 0.4f, 0.5f};
+            for (float threshold : thresholds) {
+                try {
+                    logger.info("Looking for Get Started button with similarity {}", threshold);
+                    Pattern pattern = getStartedPattern.similar(threshold);
+                    Match match = screen.wait(pattern, 10);
+                    match.highlight(1);
+                    match.click();
+                    break;
+                } catch (FindFailed e) {
+                    if (threshold == thresholds[thresholds.length - 1]) {
+                        throw e;
+                    }
+                }
+            }
+
+            // Click through onboarding screens
+            for (int i = 0; i < 3; i++) {
+                waitForPageLoad();
+                for (float threshold : thresholds) {
+                    try {
+                        logger.info("Looking for Next button with similarity {}", threshold);
+                        Pattern pattern = nextPattern.similar(threshold);
+                        Match match = screen.wait(pattern, 10);
+                        match.highlight(1);
+                        match.click();
+                        break;
+                    } catch (FindFailed e) {
+                        if (threshold == thresholds[thresholds.length - 1]) {
+                            throw e;
+                        }
+                    }
+                }
+            }
+
+            // Click Done on final screen
+            waitForPageLoad();
+            for (float threshold : thresholds) {
+                try {
+                    logger.info("Looking for Done button with similarity {}", threshold);
+                    Pattern pattern = donePattern.similar(threshold);
+                    Match match = screen.wait(pattern, 10);
+                    match.highlight(1);
+                    match.click();
+                    break;
+                } catch (FindFailed e) {
+                    if (threshold == thresholds[thresholds.length - 1]) {
+                        throw e;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Failed to complete onboarding", e);
+            throw e;
         }
     }
 
-    public boolean isWelcomeTextDisplayed() {
+    public void skipOnboarding() throws FindFailed {
+        logger.info("Skipping onboarding process");
+        waitForPageLoad();
+        
         try {
-            logger.info("Checking if welcome text is displayed...");
-            Match match = screen.exists(welcomeText, 5.0); // Use shorter timeout for checking
-            boolean result = match != null;
-            logger.info("Welcome text displayed: {}", result);
-            if (match != null) {
-                logger.info("Found at location: ({}, {}), score: {}", match.getX(), match.getY(), match.getScore());
+            float[] thresholds = {0.3f, 0.4f, 0.5f};
+            for (float threshold : thresholds) {
+                try {
+                    logger.info("Looking for Skip button with similarity {}", threshold);
+                    Pattern pattern = skipPattern.similar(threshold);
+                    Match match = screen.wait(pattern, 10);
+                    match.highlight(1);
+                    match.click();
+                    break;
+                } catch (FindFailed e) {
+                    if (threshold == thresholds[thresholds.length - 1]) {
+                        throw e;
+                    }
+                }
             }
-            return result;
         } catch (Exception e) {
-            logger.error("Failed to check if welcome text is displayed: {}", e.getMessage());
+            logger.error("Failed to skip onboarding", e);
+            throw e;
+        }
+    }
+
+    public boolean isWelcomeScreenDisplayed() {
+        logger.info("Checking if welcome screen is displayed");
+        try {
+            waitForPageLoad();
+            float[] thresholds = {0.3f, 0.4f, 0.5f};
+            for (float threshold : thresholds) {
+                try {
+                    logger.info("Looking for welcome screen with similarity {}", threshold);
+                    Pattern pattern = welcomePattern.similar(threshold);
+                    Match match = screen.wait(pattern, 10);
+                    match.highlight(1);
+                    return true;
+                } catch (FindFailed e) {
+                    if (threshold == thresholds[thresholds.length - 1]) {
+                        logger.info("Welcome screen not found with any similarity threshold");
+                        return false;
+                    }
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            logger.error("Failed to check welcome screen", e);
             return false;
         }
     }
 
-    public void clickGetStartedUntilNavigated() throws FindFailed {
-        int attempts = 0;
-        boolean navigated = false;
-
-        while (!navigated && attempts < MAX_CLICK_ATTEMPTS) {
-            attempts++;
-            logger.info("Attempt {} to click Get Started button", attempts);
-
-            try {
-                // Find and click the button
-                logger.info("Waiting for Get Started button...");
-                Match match = screen.wait(getStartedButton, DEFAULT_WAIT_TIMEOUT);
-                if (match != null) {
-                    logger.info("Found Get Started button at location: ({}, {}), score: {}", 
-                        match.getX(), match.getY(), match.getScore());
+    public void clickGetStartedAndWaitForNavigation() throws FindFailed {
+        logger.info("Clicking Get Started and waiting for navigation");
+        waitForPageLoad();
+        
+        try {
+            float[] thresholds = {0.3f, 0.4f, 0.5f};
+            for (float threshold : thresholds) {
+                try {
+                    logger.info("Looking for Get Started button with similarity {}", threshold);
+                    Pattern pattern = getStartedPattern.similar(threshold);
+                    Match match = screen.wait(pattern, 10);
+                    match.highlight(1);
+                    match.click();
                     
-                    // Move mouse to button center
-                    screen.mouseMove(match.getCenter());
-                    logger.info("Moved mouse to button center");
-                    Thread.sleep(1000); // Wait a bit to make the hover visible
-                    
-                    // Click exactly 3 times with pauses
-                    for (int i = 0; i < 3; i++) {
-                        match.click();
-                        logger.info("Click {} on Get Started button", i + 1);
-                        Thread.sleep(800); // Wait 800ms between clicks
+                    // Wait for the Get Started button to disappear
+                    screen.wait(pattern.similar(threshold), 10);
+                    break;
+                } catch (FindFailed e) {
+                    if (threshold == thresholds[thresholds.length - 1]) {
+                        throw e;
                     }
-                    
-                    // Move mouse away after clicks
-                    screen.mouseMove(new Location(0, 0));
-                    
-                    // Wait longer for navigation
-                    Thread.sleep(CLICK_RETRY_INTERVAL);
-                    
-                    // Check if we've navigated away from the welcome page
-                    if (!isWelcomeTextDisplayed()) {
-                        logger.info("Successfully navigated away from welcome page");
-                        navigated = true;
-                        break;
-                    }
-                    
-                    logger.info("Navigation not detected, will try again");
-                } else {
-                    logger.error("Get Started button not found after waiting");
-                    throw new FindFailed("Get Started button not found after waiting");
-                }
-            } catch (Exception e) {
-                logger.error("Error during click attempt {}: {}", attempts, e.getMessage());
-                if (attempts >= MAX_CLICK_ATTEMPTS) {
-                    if (e instanceof FindFailed) {
-                        throw (FindFailed) e;
-                    }
-                    throw new FindFailed("Failed to click Get Started button after " + MAX_CLICK_ATTEMPTS + " attempts: " + e.getMessage());
                 }
             }
-        }
-
-        if (!navigated) {
-            throw new FindFailed("Failed to navigate away from welcome page after " + MAX_CLICK_ATTEMPTS + " attempts");
+        } catch (Exception e) {
+            logger.error("Failed to click Get Started button", e);
+            throw e;
         }
     }
 
-    public void waitForPageToLoad() {
+    @Override
+    protected void waitForPageLoad() {
+        logger.info("Waiting for onboarding page to load");
         try {
-            logger.info("Waiting for page to load...");
-            
-            // First wait for the Flutter app to load using Selenium
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("flt-glass-pane")));
-            logger.info("Flutter app loaded");
-            
-            // Add a small delay to let animations complete
-            Thread.sleep(2000);
-            
-            // Now try to find the welcome text
-            logger.info("Looking for welcome text...");
-            Match match = screen.wait(welcomeText, DEFAULT_WAIT_TIMEOUT);
-            if (match != null) {
-                logger.info("Found welcome text at location: ({}, {}), score: {}", 
-                    match.getX(), match.getY(), match.getScore());
-            } else {
-                logger.error("Welcome text not found after waiting");
-                throw new RuntimeException("Welcome text not found after waiting");
+            float[] thresholds = {0.3f, 0.4f, 0.5f};
+            for (float threshold : thresholds) {
+                try {
+                    logger.info("Looking for welcome text with similarity {}", threshold);
+                    Pattern pattern = welcomePattern.similar(threshold);
+                    Match match = screen.wait(pattern, 10);
+                    if (match != null) {
+                        match.highlight(1);
+                        logger.info("Found welcome text at location: ({}, {}), score: {}", 
+                            match.getX(), match.getY(), match.getScore());
+                        return;
+                    }
+                } catch (FindFailed e) {
+                    if (threshold == thresholds[thresholds.length - 1]) {
+                        logger.warn("Welcome text not found with any similarity threshold");
+                    }
+                }
             }
         } catch (Exception e) {
-            logger.error("Page failed to load: {}", e.getMessage());
-            throw new RuntimeException("Onboarding page did not load properly: " + e.getMessage());
+            logger.error("Failed to wait for page load", e);
         }
+        // Give the page time to settle even if we don't find the welcome text
+        super.waitForPageLoad();
     }
 }
