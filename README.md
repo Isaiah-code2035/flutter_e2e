@@ -91,11 +91,6 @@ flutter_e2e/
    ./scripts/run_tests.sh --gui
    ```
 
-3. **View Help:**
-   ```bash
-   ./scripts/run_tests.sh --help
-   ```
-
 ### Using Maven Directly
 
 1. **Run All Tests:**
@@ -126,8 +121,6 @@ flutter_e2e/
    # Run with retry on failure
    mvn clean test -Dsurefire.rerunFailingTestsCount=2
 
-   # Run with custom report directory
-   mvn clean test -DreportDirectory="custom-reports"
 
    # Run with all options combined
    mvn clean test -Dheadless=true -Dtest=OnboardingTest -Dsurefire.rerunFailingTestsCount=2 -DreportDirectory="custom-reports"
@@ -142,7 +135,6 @@ flutter_e2e/
 - Reports are generated in `test-output/[timestamp]/`
 - Each run creates a new directory with:
   - HTML test report
-  - Screenshots of failures
   - Detailed logs
 
 ## Test Coverage
@@ -211,14 +203,3 @@ For a detailed list of known issues and their solutions, see [BUG_REPORT.md](doc
 
 - [Test Execution Guide](docs/TEST_EXECUTION.md)
 - [Bug Report](docs/BUG_REPORT.md)
-
-## Support
-
-For issues or questions:
-1. Check test reports in `test-output/`
-2. Review logs in the test report directory
-3. Consult the documentation in `docs/`
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
